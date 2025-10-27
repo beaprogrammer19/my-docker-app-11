@@ -6,8 +6,8 @@ pipeline {
     stages {
         stage('Checkout Code') {
             steps {
-                git 'https://github.com/beaprogrammer19/my-docker-app-11.git'
-            }
+                git branch: 'main', url: 'https://github.com/beaprogrammer19/my-docker-app-11.git'
+
         }
         stage('Build Docker Image') {
             steps {
