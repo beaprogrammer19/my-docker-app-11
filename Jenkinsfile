@@ -1,40 +1,27 @@
 pipeline {
     agent any
-
     environment {
-        DOCKERHUB_CREDENTIALS = credentials('dockerhub-credentials-11')  // Jenkins Credential ID
-        IMAGE_NAME = "aditi1903/my-docker-app-11"
+        DOCKERHUB_CREDENTIALS = credentials('dockerhub-credentials-11')
     }
-
     stages {
         stage('Checkout Code') {
             steps {
-                git branch: 'main', url: 'https://github.com/beaprogrammer19/my-docker-app-11.git'
+                git 'https://github.com/beaprogrammer19/my-docker-app-11.git'
             }
         }
-
         stage('Build Docker Image') {
             steps {
-                script {
-                    dockerImage = docker.build("${IMAGE_NAME}:${BUILD_NUMBER}")
-                }
+                bat 'docker build -t aditi1903/my-docker-app-11:2 .'
             }
         }
-
-        stage('Push to Docker Hub') {
+        stage('Push to DockerHub') {
             steps {
-                script {
-                    docker.withRegistry('https://index.docker.io/v1/', "${DOCKERHUB_CREDENTIALS}") {
-                        dockerImage.push()
-                        dockerImage.push('latest')
-                    }
+                withCredentials([usernamePassword(credentialsId: 'dockerhub-credentials-11', usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD')]) {
+                    bat '''
+                    docker login -u %USERNAME% -p %PASSWORD%
+                    docker push aditi1903/my-docker-app-11:2
+                    '''
                 }
-            }
-        }
-
-        stage('Clean up') {
-            steps {
-                sh 'docker rmi $(docker images -f "dangling=true" -q) || true'
             }
         }
     }
